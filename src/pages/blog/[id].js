@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import BlogCard from '@/components/blogCard';
 
 export default function BlogDetail() {
   const router = useRouter();
@@ -61,25 +62,13 @@ export default function BlogDetail() {
   }
 
   return (
-    <div>
-      <div>{details?.body}</div>
-      <div>{details?.title}</div>
-      <div>{userDetail?.name}</div>
-      <div>{userDetail?.email}</div>
-      <div>{userDetail?.body}</div>
-      {commentDetail?.length >= 1 ? (
-        <div>
-          <p>Comment</p>
-          {commentDetail.map((comment, index) => (
-            <div key={index}>
-              <p>{comment.name}</p>
-              <p>{comment.body}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        'no comment here!'
-      )}
+    <div className="h-screen bg-slate-900 flex items-center justify-center">
+      <BlogCard
+        body={details?.body}
+        title={details?.title}
+        user={userDetail}
+        comment={commentDetail}
+      />
     </div>
   );
 }
