@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
@@ -8,21 +8,19 @@ export default function BlogDetail() {
 
   const [details, setDetails] = useState();
   const [userDetail, setUserDetail] = useState([]);
-  const [commentDetail, setCommentDetail] = useState([]);
+  const [commentDetail, setCommentDetail] = useState();
 
   useEffect(() => {
     if (id) {
       getDetailPost();
-      getDetailComment();
     }
-    return;
-  }, []);
+    getDetailComment(id);
+  }, [id]);
 
   useEffect(() => {
     if (details) {
       getUser(details.user_id);
     }
-    return;
   }, [details]);
 
   async function getDetailPost() {
@@ -32,18 +30,6 @@ export default function BlogDetail() {
       );
       const result = response?.data;
       setDetails(result);
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
-
-  async function getDetailComment() {
-    try {
-      const response = await axios.get(
-        `https://gorest.co.in/public/v2/comments`
-      );
-      const result = response?.data;
-      setCommentDetail(result);
     } catch (error) {
       console.log(error.message);
     }
@@ -61,10 +47,19 @@ export default function BlogDetail() {
     }
   }
 
-  function findDetailComment(postId) {
-    const filter = commentDetail.filter((fil) => fil.post_id == postId);
-    setCommentDetail(filter);
+  async function getDetailComment(postId) {
+    try {
+      const response = await axios.get(
+        `https://gorest.co.in/public/v2/comments`
+      );
+      const result = response?.data;
+      const filter = result.filter((fil) => fil.post_id == postId);
+      setCommentDetail(filter);
+    } catch (error) {
+      console.log(error.message);
+    }
   }
+
   return (
     <div>
       <div>{details?.body}</div>
@@ -72,11 +67,19 @@ export default function BlogDetail() {
       <div>{userDetail?.name}</div>
       <div>{userDetail?.email}</div>
       <div>{userDetail?.body}</div>
-
-      <div>{commentDetail[0]?.post_id}</div>
-      <div>{commentDetail[0]?.name}</div>
-      <div>{commentDetail[0]?.email}</div>
-      <div>{commentDetail[0]?.body}</div>
+      {commentDetail?.length >= 1 ? (
+        <div>
+          <p>Comment</p>
+          {commentDetail.map((comment, index) => (
+            <div key={index}>
+              <p>{comment.name}</p>
+              <p>{comment.body}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        'no comment here!'
+      )}
     </div>
   );
 }

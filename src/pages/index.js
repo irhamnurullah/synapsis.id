@@ -5,16 +5,37 @@ import Link from 'next/link';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPage = 10;
+  const pages = Array.from(Array(totalPage), (_, i) => i + 1);
 
-  async function getData() {
-    const response = await axios.get(`https://gorest.co.in/public/v2/posts`);
+  // https://gorest.co.in/public/v2/posts?page=1&per_page=10
+  async function getData(value) {
+    const response = await axios.get(`https://gorest.co.in/public/v2/posts`, {
+      params: {
+        page: value ? value : currentPage,
+        per_page: 10,
+      },
+    });
     const result = response.data;
     setPosts(result);
   }
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [currentPage]);
+
+  function nextPage() {
+    setCurrentPage(currentPage + 1);
+  }
+
+  function previousPage() {
+    setCurrentPage(currentPage - 1);
+  }
+
+  function goToPage(p) {
+    setCurrentPage(p);
+  }
 
   return (
     <>
@@ -39,6 +60,30 @@ export default function Home() {
             ))}
           </ul>
         </div>
+        <button
+          className="px-4 py-2 border rounded-md"
+          onClick={previousPage}
+          disabled={currentPage === 1}
+        >
+          prev
+        </button>
+        {pages.map((page) => (
+          <button
+            key={page}
+            className="px-4 py-2 border rounded-md"
+            onClick={() => goToPage(page)}
+            disabled={currentPage === page}
+          >
+            {page}
+          </button>
+        ))}
+        <button
+          className="px-4 py-2 border rounded-md"
+          onClick={nextPage}
+          disabled={currentPage === totalPage}
+        >
+          next
+        </button>
       </main>
     </>
   );
